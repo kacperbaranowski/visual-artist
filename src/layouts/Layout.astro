@@ -1,0 +1,80 @@
+---
+import "../styles/global.css";
+import Cursor from "../components/Cursor.astro";
+import Navigation from "../components/Navigation.astro";
+import Preloader from "../components/Preloader.astro";
+import Footer from "../components/Footer.astro";
+import DemoProtection from "../components/DemoProtection.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  showPreloader?: boolean;
+}
+
+const { title, description = "Artist Portfolio - Paintings, Exhibitions, Blog.", showPreloader = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-bg text-text antialiased">
+    {showPreloader && <Preloader />}
+    <Cursor />
+    <Navigation />
+
+    <main>
+      <slot />
+    </main>
+
+    <Footer />
+
+    <DemoProtection />
+
+    <div class="noise"></div>
+
+    <script>
+      import Lenis from "lenis";
+      import gsap from "gsap";
+      import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Initialize Lenis smooth scroll
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: "vertical",
+        smoothWheel: true,
+      });
+
+      // Connect Lenis to GSAP ScrollTrigger
+      lenis.on("scroll", ScrollTrigger.update);
+
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+
+      gsap.ticker.lagSmoothing(0);
+
+      // Make lenis globally available
+      (window as any).lenis = lenis;
+
+      // If no preloader, mark as ready and trigger animations
+      const preloader = document.getElementById("preloader");
+      if (!preloader) {
+        (window as any).preloaderDone = true;
+        // Fire event after small delay to ensure all scripts are loaded
+        setTimeout(() => {
+          document.dispatchEvent(new CustomEvent("preloaderComplete"));
+        }, 50);
+      }
+    </script>
+  </body>
+</html>
