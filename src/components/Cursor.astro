@@ -1,0 +1,132 @@
+---
+// Custom cursor component with magnetic effect
+---
+
+<div id="cursor" class="pointer-events-none fixed top-0 left-0 z-[10000] mix-blend-difference">
+  <div id="cursor-dot" class="absolute w-2 h-2 bg-text rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+  <div id="cursor-circle" class="absolute w-12 h-12 border border-text rounded-full -translate-x-1/2 -translate-y-1/2 opacity-50"></div>
+  <div id="cursor-text" class="absolute text-xs font-sans uppercase tracking-widest text-text -translate-x-1/2 -translate-y-1/2 opacity-0 whitespace-nowrap"></div>
+</div>
+
+<script>
+  import gsap from "gsap";
+
+  const cursor = document.getElementById("cursor");
+  const cursorDot = document.getElementById("cursor-dot");
+  const cursorCircle = document.getElementById("cursor-circle");
+  const cursorText = document.getElementById("cursor-text");
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let dotX = 0;
+  let dotY = 0;
+  let circleX = 0;
+  let circleY = 0;
+
+  // Track mouse position
+  document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  // Animate cursor
+  gsap.ticker.add(() => {
+    // Dot follows mouse directly
+    dotX += (mouseX - dotX) * 0.5;
+    dotY += (mouseY - dotY) * 0.5;
+
+    // Circle follows with delay
+    circleX += (mouseX - circleX) * 0.15;
+    circleY += (mouseY - circleY) * 0.15;
+
+    gsap.set(cursorDot, { x: dotX, y: dotY });
+    gsap.set(cursorCircle, { x: circleX, y: circleY });
+    gsap.set(cursorText, { x: mouseX, y: mouseY + 40 });
+  });
+
+  // Hover effects for links and buttons
+  const interactiveElements = document.querySelectorAll("a, button, .magnetic, [data-cursor]");
+
+  interactiveElements.forEach((el) => {
+    el.addEventListener("mouseenter", () => {
+      const cursorType = el.getAttribute("data-cursor");
+
+      gsap.to(cursorCircle, {
+        scale: 2,
+        opacity: 0.3,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+
+      gsap.to(cursorDot, {
+        scale: 0,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+
+      if (cursorType) {
+        gsap.to(cursorText, {
+          opacity: 1,
+          duration: 0.3,
+        });
+        if (cursorText) cursorText.textContent = cursorType;
+      }
+    });
+
+    el.addEventListener("mouseleave", () => {
+      gsap.to(cursorCircle, {
+        scale: 1,
+        opacity: 0.5,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+
+      gsap.to(cursorDot, {
+        scale: 1,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+
+      gsap.to(cursorText, {
+        opacity: 0,
+        duration: 0.3,
+      });
+    });
+  });
+
+  // Magnetic effect for buttons
+  const magneticElements = document.querySelectorAll(".magnetic");
+
+  magneticElements.forEach((el) => {
+    el.addEventListener("mousemove", (e) => {
+      const rect = (el as HTMLElement).getBoundingClientRect();
+      const x = (e as MouseEvent).clientX - rect.left - rect.width / 2;
+      const y = (e as MouseEvent).clientY - rect.top - rect.height / 2;
+
+      gsap.to(el, {
+        x: x * 0.3,
+        y: y * 0.3,
+        duration: 0.3,
+        ease: "power2.out",
+      });
+    });
+
+    el.addEventListener("mouseleave", () => {
+      gsap.to(el, {
+        x: 0,
+        y: 0,
+        duration: 0.5,
+        ease: "elastic.out(1, 0.3)",
+      });
+    });
+  });
+
+  // Hide cursor when leaving window
+  document.addEventListener("mouseleave", () => {
+    gsap.to(cursor, { opacity: 0, duration: 0.3 });
+  });
+
+  document.addEventListener("mouseenter", () => {
+    gsap.to(cursor, { opacity: 1, duration: 0.3 });
+  });
+</script>
