@@ -1,0 +1,202 @@
+---
+// Fullscreen navigation with animations
+const navLinks = [
+  { href: "/", label: "Home", number: "01" },
+  { href: "/about", label: "About", number: "02" },
+  { href: "/portfolio", label: "Portfolio", number: "03" },
+  { href: "/exhibitions", label: "Exhibitions", number: "04" },
+  { href: "/blog", label: "Blog", number: "05" },
+  { href: "/contact", label: "Contact", number: "06" },
+];
+---
+
+<header class="fixed top-0 left-0 w-full z-[100] mix-blend-difference">
+  <div class="flex items-center justify-between px-8 py-6 md:px-12">
+    <a href="/" class="magnetic" data-cursor="Home">
+      <span class="font-serif text-2xl font-light tracking-wider text-text">Artist Name</span>
+    </a>
+
+    <button
+      id="menu-toggle"
+      class="magnetic relative z-[101] flex flex-col gap-2 p-2"
+      aria-label="Menu"
+      data-cursor="Menu"
+    >
+      <span class="menu-line w-8 h-px bg-text origin-center transition-transform duration-300"></span>
+      <span class="menu-line w-8 h-px bg-text origin-center transition-transform duration-300"></span>
+    </button>
+  </div>
+</header>
+
+<nav
+  id="menu"
+  class="fixed inset-0 z-[99] bg-bg flex items-center justify-center opacity-0 pointer-events-none"
+>
+  <div class="absolute inset-0 bg-bg-light opacity-0" id="menu-bg"></div>
+
+  <div class="relative z-10 flex flex-col items-center gap-4 md:gap-6">
+    {
+      navLinks.map((link, i) => (
+        <a
+          href={link.href}
+          class="nav-link group relative flex items-center gap-4 overflow-hidden"
+          data-cursor="Explore"
+        >
+          <span class="text-text-muted text-sm font-sans opacity-0 -translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+            {link.number}
+          </span>
+          <span class="nav-text font-serif text-5xl md:text-7xl lg:text-8xl font-light tracking-wider translate-y-full">
+            {link.label}
+          </span>
+          <span class="absolute bottom-0 left-0 w-0 h-px bg-accent transition-all duration-500 group-hover:w-full"></span>
+        </a>
+      ))
+    }
+  </div>
+
+  <div class="absolute bottom-8 left-8 right-8 flex justify-between items-end text-text-muted text-sm">
+    <div class="nav-footer opacity-0 translate-y-4">
+      <p>Visual Artist</p>
+      <p class="text-accent">Based Worldwide</p>
+    </div>
+    <div class="nav-footer opacity-0 translate-y-4 text-right">
+      <p>hello@example.com</p>
+      <div class="flex gap-4 mt-2 justify-end">
+        <a href="#" class="magnetic hover:text-accent transition-colors" data-cursor="Instagram">IG</a>
+        <a href="#" class="magnetic hover:text-accent transition-colors" data-cursor="Facebook">FB</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+  import gsap from "gsap";
+
+  const menuToggle = document.getElementById("menu-toggle");
+  const menu = document.getElementById("menu");
+  const menuBg = document.getElementById("menu-bg");
+  const menuLines = document.querySelectorAll(".menu-line");
+  const navLinks = document.querySelectorAll(".nav-link");
+  const navTexts = document.querySelectorAll(".nav-text");
+  const navFooters = document.querySelectorAll(".nav-footer");
+
+  let isOpen = false;
+
+  const openMenu = () => {
+    isOpen = true;
+    const lenis = (window as any).lenis;
+    if (lenis) lenis.stop();
+
+    gsap.set(menu, { opacity: 1, pointerEvents: "auto" });
+
+    // Animate menu background
+    gsap.to(menuBg, {
+      opacity: 1,
+      duration: 0.6,
+      ease: "power2.inOut",
+    });
+
+    // Animate hamburger to X
+    gsap.to(menuLines[0], {
+      rotate: 45,
+      y: 4.5,
+      duration: 0.3,
+    });
+    gsap.to(menuLines[1], {
+      rotate: -45,
+      y: -4.5,
+      duration: 0.3,
+    });
+
+    // Stagger animate nav links
+    gsap.to(navTexts, {
+      y: 0,
+      duration: 0.8,
+      stagger: 0.1,
+      ease: "power3.out",
+      delay: 0.2,
+    });
+
+    // Animate footer
+    gsap.to(navFooters, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      delay: 0.6,
+    });
+  };
+
+  const closeMenu = () => {
+    isOpen = false;
+    const lenis = (window as any).lenis;
+    if (lenis) lenis.start();
+
+    // Animate nav links out
+    gsap.to(navTexts, {
+      y: "100%",
+      duration: 0.5,
+      stagger: 0.05,
+      ease: "power3.in",
+    });
+
+    // Animate footer out
+    gsap.to(navFooters, {
+      opacity: 0,
+      y: 20,
+      duration: 0.3,
+    });
+
+    // Animate hamburger back
+    gsap.to(menuLines[0], {
+      rotate: 0,
+      y: 0,
+      duration: 0.3,
+      delay: 0.3,
+    });
+    gsap.to(menuLines[1], {
+      rotate: 0,
+      y: 0,
+      duration: 0.3,
+      delay: 0.3,
+    });
+
+    // Hide menu
+    gsap.to(menuBg, {
+      opacity: 0,
+      duration: 0.5,
+      delay: 0.2,
+    });
+
+    gsap.to(menu, {
+      opacity: 0,
+      duration: 0.5,
+      delay: 0.4,
+      onComplete: () => {
+        gsap.set(menu, { pointerEvents: "none" });
+      },
+    });
+  };
+
+  menuToggle?.addEventListener("click", () => {
+    if (isOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  // Close menu on link click
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      if (isOpen) closeMenu();
+    });
+  });
+
+  // Close on escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen) {
+      closeMenu();
+    }
+  });
+</script>
