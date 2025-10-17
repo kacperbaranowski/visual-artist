@@ -1,0 +1,129 @@
+---
+// Selected works with horizontal scroll
+const works = [
+  { id: 1, title: "Ethereal Dawn I", cycle: "Light Series", slug: "light-series", year: "2024", image: "https://picsum.photos/seed/art1/800/1000" },
+  { id: 2, title: "Silent Reflection II", cycle: "Seasons", slug: "seasons", year: "2023", image: "https://picsum.photos/seed/art2/800/1000" },
+  { id: 3, title: "Golden Hour III", cycle: "Elements", slug: "elements", year: "2024", image: "https://picsum.photos/seed/art3/800/1000" },
+  { id: 4, title: "Deep Within IV", cycle: "Abstract", slug: "abstract", year: "2023", image: "https://picsum.photos/seed/art4/800/1000" },
+  { id: 5, title: "Morning Mist V", cycle: "Light Series", slug: "light-series", year: "2024", image: "https://picsum.photos/seed/art5/800/1000" },
+];
+---
+
+<section id="selected-works" class="relative py-24 md:py-32 overflow-hidden bg-bg-light">
+  <div class="px-8 md:px-16 lg:px-24 mb-16">
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+      <div>
+        <div class="overflow-hidden">
+          <p class="works-line text-accent text-sm tracking-[0.3em] uppercase mb-4 translate-y-full">
+            Selected Works
+          </p>
+        </div>
+        <div class="overflow-hidden">
+          <h2 class="works-line font-serif text-4xl md:text-5xl lg:text-6xl font-light translate-y-full">
+            Portfolio
+          </h2>
+        </div>
+      </div>
+
+      <div class="overflow-hidden">
+        <a href="/portfolio" class="works-line magnetic inline-flex items-center gap-3 text-text-muted hover:text-accent transition-colors duration-300 translate-y-full" data-cursor="All">
+          <span class="text-sm tracking-[0.2em] uppercase">View all works</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div id="horizontal-trigger" class="relative">
+    <div id="horizontal-scroll" class="flex gap-8 pl-8 md:pl-16 lg:pl-24 pr-[20vw]">
+      {works.map((work) => (
+        <article class="work-item flex-shrink-0 w-[70vw] md:w-[45vw] lg:w-[35vw] group" data-cursor="View">
+          <a href={`/portfolio/${work.slug}`} class="block">
+            <div class="relative overflow-hidden aspect-[4/5] mb-6">
+              <div class="work-reveal absolute inset-0 bg-bg-light z-10" />
+              <img src={work.image} alt={work.title} class="work-img w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div class="absolute inset-0 bg-bg/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                <div class="w-20 h-20 rounded-full border border-text flex items-center justify-center">
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-serif text-2xl md:text-3xl font-light mb-2 group-hover:text-accent transition-colors">{work.title}</h3>
+                <p class="text-text-muted text-sm">{work.cycle}</p>
+              </div>
+              <span class="text-text-muted text-sm">{work.year}</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <div class="px-8 md:px-16 lg:px-24 mt-12">
+    <div class="flex items-center gap-6">
+      <span class="text-text-muted text-sm font-mono">01</span>
+      <div class="flex-1 h-px bg-text-muted/20 relative">
+        <div id="scroll-progress" class="absolute top-0 left-0 h-full bg-accent w-0"></div>
+      </div>
+      <span class="text-text-muted text-sm font-mono">0{works.length}</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.to(".works-line", {
+    y: 0,
+    duration: 1,
+    stagger: 0.1,
+    ease: "power3.out",
+    scrollTrigger: { trigger: "#selected-works", start: "top 70%", toggleActions: "play none none reverse" },
+  });
+
+  const horizontalScroll = document.getElementById("horizontal-scroll");
+  const horizontalTrigger = document.getElementById("horizontal-trigger");
+  const scrollProgress = document.getElementById("scroll-progress");
+
+  if (horizontalScroll && horizontalTrigger) {
+    const scrollWidth = horizontalScroll.scrollWidth - window.innerWidth + 100;
+    gsap.to(horizontalScroll, {
+      x: -scrollWidth,
+      ease: "none",
+      scrollTrigger: {
+        trigger: horizontalTrigger,
+        start: "top top",
+        end: () => `+=${scrollWidth}`,
+        pin: true,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          if (scrollProgress) gsap.set(scrollProgress, { width: `${self.progress * 100}%` });
+        },
+      },
+    });
+  }
+
+  // Reveal all work items after a delay (horizontal scroll makes individual triggers unreliable)
+  gsap.to(".work-reveal", {
+    scaleX: 0,
+    transformOrigin: "right",
+    duration: 1.2,
+    ease: "power3.inOut",
+    stagger: 0.15,
+    scrollTrigger: {
+      trigger: "#selected-works",
+      start: "top 70%",
+      toggleActions: "play none none none"
+    },
+  });
+</script>
