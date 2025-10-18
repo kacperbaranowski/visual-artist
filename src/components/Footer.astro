@@ -1,0 +1,29 @@
+---
+// Footer component for all pages
+---
+
+<footer class="border-t border-text-muted/20 py-12 px-8 md:px-16 lg:px-24">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+    <div>
+      <a href="/" class="font-serif text-2xl font-light tracking-wider hover:text-accent transition-colors">Artist Name</a>
+      <p class="text-text-muted text-sm mt-2">Visual Artist</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
+      <a href="mailto:hello@example.com" class="text-text-muted hover:text-accent transition-colors text-sm">hello@example.com</a>
+      <div class="flex gap-6">
+        <a href="#" class="magnetic text-text-muted hover:text-accent transition-colors" data-cursor="Instagram" aria-label="Instagram">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="18" cy="6" r="1" fill="currentColor" /></svg>
+        </a>
+        <a href="#" class="magnetic text-text-muted hover:text-accent transition-colors" data-cursor="Facebook" aria-label="Facebook">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" /></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto mt-12 pt-8 border-t border-text-muted/10 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-text-muted text-xs">
+    <p>&copy; {new Date().getFullYear()} Artist Name. All rights reserved.</p>
+    <p>Design & Development by <a href="https://kacperbaranowski.dev" target="_blank" rel="noopener noreferrer" class="text-accent hover:text-text transition-colors">kacperbaranowski.dev</a></p>
+  </div>
+</footer>
