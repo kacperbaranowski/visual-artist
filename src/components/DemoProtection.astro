@@ -1,0 +1,134 @@
+---
+// Demo protection - disable inspect element and code viewing
+---
+
+<div id="devtools-warning" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0a0a;color:#f5f5f5;font-family:serif;">
+  <div style="display:flex;align-items:center;justify-content:center;height:100vh;text-align:center;padding:2rem;">
+    <div>
+      <h1 style="font-size:4rem;margin-bottom:1rem;color:#c9a87c;">Nice try! 👀</h1>
+      <p style="font-size:1.2rem;opacity:0.7;">This is a protected demo template.</p>
+      <p style="margin-top:2rem;">To purchase, contact: <a href="mailto:hello@kacperbaranowski.dev" style="color:#c9a87c;">hello@kacperbaranowski.dev</a></p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+(function() {
+  // Fancy console warning
+  const warningStyle = 'color: #c9a87c; font-size: 24px; font-weight: bold; text-shadow: 1px 1px 2px #000;';
+  const textStyle = 'color: #f5f5f5; font-size: 14px;';
+
+  console.log('%c⚠️ STOP!', warningStyle);
+  console.log('%cThis is a demo template. The code is protected.', textStyle);
+  console.log('%cTo purchase, contact: hello@kacperbaranowski.dev', textStyle);
+  console.log('%c© 2024 kacperbaranowski.dev - All rights reserved.', 'color: #666; font-size: 11px;');
+
+  // Disable right-click
+  document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+  });
+
+  // Disable keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    // F12
+    if (e.key === 'F12') {
+      e.preventDefault();
+      return false;
+    }
+    // Ctrl+Shift+I (Inspect)
+    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+      e.preventDefault();
+      return false;
+    }
+    // Ctrl+Shift+J (Console)
+    if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+      e.preventDefault();
+      return false;
+    }
+    // Ctrl+Shift+C (Inspect element)
+    if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+      e.preventDefault();
+      return false;
+    }
+    // Ctrl+U (View source)
+    if (e.ctrlKey && e.key === 'u') {
+      e.preventDefault();
+      return false;
+    }
+    // Ctrl+S (Save)
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Detect DevTools opening
+  let devtoolsOpen = false;
+  const threshold = 160;
+
+  const checkDevTools = function() {
+    const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+    const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+
+    if (widthThreshold || heightThreshold) {
+      if (!devtoolsOpen) {
+        devtoolsOpen = true;
+        const warning = document.getElementById('devtools-warning');
+        if (warning) {
+          warning.style.display = 'block';
+        }
+      }
+    }
+  };
+
+  setInterval(checkDevTools, 1000);
+
+  // Disable text selection via JS (backup for CSS)
+  document.addEventListener('selectstart', function(e) {
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // Disable drag
+  document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+    return false;
+  });
+
+  // Disable copy
+  document.addEventListener('copy', function(e) {
+    e.preventDefault();
+    return false;
+  });
+})();
+</script>
+
+<style is:global>
+  /* Disable text selection */
+  body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow selection in form inputs */
+  input, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Disable image dragging */
+  img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+  }
+</style>

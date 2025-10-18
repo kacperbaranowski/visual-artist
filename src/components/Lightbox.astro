@@ -1,0 +1,162 @@
+---
+// Lightbox component for image galleries
+---
+
+<div id="lightbox" class="fixed inset-0 z-[1000] bg-bg/95 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+  <!-- Close button -->
+  <button id="lightbox-close" class="absolute top-6 right-6 z-10 w-12 h-12 flex items-center justify-center text-text hover:text-accent transition-colors">
+    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M18 6L6 18M6 6l12 12" />
+    </svg>
+  </button>
+
+  <!-- Navigation arrows -->
+  <button id="lightbox-prev" class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-10 w-12 h-12 flex items-center justify-center text-text hover:text-accent transition-colors">
+    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  </button>
+  <button id="lightbox-next" class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-10 w-12 h-12 flex items-center justify-center text-text hover:text-accent transition-colors">
+    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M5 12h14M12 5l7 7-7 7" />
+    </svg>
+  </button>
+
+  <!-- Image container -->
+  <div class="absolute inset-0 flex items-center justify-center p-4 md:p-16">
+    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain opacity-0 scale-95 transition-all duration-300" />
+  </div>
+
+  <!-- Image info -->
+  <div id="lightbox-info" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-center opacity-0 transition-opacity duration-300">
+    <p id="lightbox-title" class="font-serif text-xl text-text"></p>
+    <p id="lightbox-meta" class="text-text-muted text-sm mt-1"></p>
+    <p id="lightbox-counter" class="text-text-muted/50 text-xs mt-2"></p>
+  </div>
+</div>
+
+<script>
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement;
+  const lightboxTitle = document.getElementById('lightbox-title');
+  const lightboxMeta = document.getElementById('lightbox-meta');
+  const lightboxCounter = document.getElementById('lightbox-counter');
+  const lightboxInfo = document.getElementById('lightbox-info');
+  const closeBtn = document.getElementById('lightbox-close');
+  const prevBtn = document.getElementById('lightbox-prev');
+  const nextBtn = document.getElementById('lightbox-next');
+
+  let currentIndex = 0;
+  let galleryImages: { src: string; title: string; meta: string }[] = [];
+
+  // Initialize gallery from work-card elements
+  function initGallery() {
+    const cards = document.querySelectorAll('.work-card');
+    galleryImages = [];
+
+    cards.forEach((card, index) => {
+      const img = card.querySelector('img');
+      const title = card.querySelector('h3')?.textContent || '';
+      const meta = card.querySelector('p')?.textContent || '';
+
+      if (img) {
+        galleryImages.push({
+          src: img.src.replace('/600/800', '/1200/1600'), // Get larger image
+          title,
+          meta
+        });
+
+        card.addEventListener('click', (e) => {
+          e.preventDefault();
+          openLightbox(index);
+        });
+
+        card.style.cursor = 'pointer';
+      }
+    });
+  }
+
+  function openLightbox(index: number) {
+    currentIndex = index;
+    updateLightboxImage();
+
+    lightbox?.classList.remove('opacity-0', 'pointer-events-none');
+    document.body.style.overflow = 'hidden';
+
+    // Stop Lenis
+    const lenis = (window as any).lenis;
+    if (lenis) lenis.stop();
+
+    setTimeout(() => {
+      lightboxImage?.classList.remove('opacity-0', 'scale-95');
+      lightboxInfo?.classList.remove('opacity-0');
+    }, 100);
+  }
+
+  function closeLightbox() {
+    lightboxImage?.classList.add('opacity-0', 'scale-95');
+    lightboxInfo?.classList.add('opacity-0');
+
+    setTimeout(() => {
+      lightbox?.classList.add('opacity-0', 'pointer-events-none');
+      document.body.style.overflow = '';
+
+      // Resume Lenis
+      const lenis = (window as any).lenis;
+      if (lenis) lenis.start();
+    }, 300);
+  }
+
+  function updateLightboxImage() {
+    if (!galleryImages[currentIndex]) return;
+
+    const { src, title, meta } = galleryImages[currentIndex];
+
+    // Fade out
+    lightboxImage?.classList.add('opacity-0', 'scale-95');
+
+    setTimeout(() => {
+      if (lightboxImage) lightboxImage.src = src;
+      if (lightboxTitle) lightboxTitle.textContent = title;
+      if (lightboxMeta) lightboxMeta.textContent = meta;
+      if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${galleryImages.length}`;
+
+      // Fade in
+      lightboxImage?.classList.remove('opacity-0', 'scale-95');
+    }, 150);
+  }
+
+  function nextImage() {
+    currentIndex = (currentIndex + 1) % galleryImages.length;
+    updateLightboxImage();
+  }
+
+  function prevImage() {
+    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    updateLightboxImage();
+  }
+
+  // Event listeners
+  closeBtn?.addEventListener('click', closeLightbox);
+  nextBtn?.addEventListener('click', nextImage);
+  prevBtn?.addEventListener('click', prevImage);
+
+  // Close on background click
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox || (e.target as HTMLElement).closest('#lightbox > div:not(button)')) {
+      closeLightbox();
+    }
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (lightbox?.classList.contains('pointer-events-none')) return;
+
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextImage();
+    if (e.key === 'ArrowLeft') prevImage();
+  });
+
+  // Initialize on load
+  initGallery();
+</script>
