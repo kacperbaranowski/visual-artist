@@ -1,0 +1,57 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const cycles = [
+  { id: 1, title: "Light Series", count: 24, description: "Exploring the interplay of natural light and shadow.", image: "https://picsum.photos/seed/cycle1/800/500", slug: "light-series" },
+  { id: 2, title: "Seasons", count: 18, description: "A meditation on the cyclical nature of time.", image: "https://picsum.photos/seed/cycle2/800/500", slug: "seasons" },
+  { id: 3, title: "Elements", count: 22, description: "Raw expressions of earth, water, fire, and air.", image: "https://picsum.photos/seed/cycle3/800/500", slug: "elements" },
+  { id: 4, title: "Abstract", count: 20, description: "Pure emotion translated into form and color.", image: "https://picsum.photos/seed/cycle4/800/500", slug: "abstract" },
+];
+---
+
+<Layout title="Portfolio | Artist Name">
+  <section class="min-h-screen pt-32 pb-24 px-8 md:px-16 lg:px-24">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-16 md:mb-24">
+        <div class="overflow-hidden"><p class="page-line text-accent text-sm tracking-[0.3em] uppercase mb-4 translate-y-full">Portfolio</p></div>
+        <div class="overflow-hidden"><h1 class="page-line font-serif text-5xl md:text-7xl lg:text-8xl font-light translate-y-full">Art Collections</h1></div>
+        <div class="overflow-hidden mt-6"><p class="page-line text-text-muted max-w-2xl translate-y-full">Explore the complete body of work organized by thematic series and creative periods.</p></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+        {cycles.map((cycle) => (
+          <article class="cycle-card group relative opacity-0 translate-y-8" data-cursor="Discover">
+            <a href={`/portfolio/${cycle.slug}`} class="block">
+              <div class="relative overflow-hidden aspect-[16/10] mb-6">
+                <div class="cycle-reveal absolute inset-0 bg-bg z-10" />
+                <img src={cycle.image} alt={cycle.title} class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" />
+                <div class="absolute inset-0 bg-gradient-to-t from-bg/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div class="absolute bottom-6 left-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-500"><p class="text-text text-sm">{cycle.description}</p></div>
+                <div class="absolute top-6 right-6 w-12 h-12 rounded-full border border-text/30 flex items-center justify-center group-hover:bg-accent group-hover:border-accent transition-all duration-500"><span class="text-sm font-mono">{cycle.count}</span></div>
+              </div>
+              <div class="flex items-center justify-between">
+                <h3 class="font-serif text-2xl md:text-3xl lg:text-4xl font-light group-hover:text-accent transition-colors duration-300">{cycle.title}</h3>
+                <div class="w-10 h-10 rounded-full border border-text/20 flex items-center justify-center group-hover:border-accent group-hover:bg-accent transition-all duration-500">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import gsap from "gsap";
+  document.addEventListener("preloaderComplete", init);
+  if (!document.getElementById("preloader") || document.getElementById("preloader")?.style.display === "none") init();
+  function init() {
+    gsap.to(".page-line", { y: 0, duration: 1, stagger: 0.1, ease: "power3.out" });
+    gsap.utils.toArray<HTMLElement>(".cycle-card").forEach((card, i) => {
+      gsap.to(card, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.3 + i * 0.1 });
+      gsap.to(card.querySelector(".cycle-reveal"), { scaleY: 0, transformOrigin: "bottom", duration: 1.2, ease: "power3.inOut", delay: 0.4 + i * 0.1 });
+    });
+  }
+</script>

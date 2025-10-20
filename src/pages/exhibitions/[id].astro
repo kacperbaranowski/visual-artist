@@ -1,0 +1,85 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+export function getStaticPaths() {
+  return Array.from({ length: 20 }, (_, i) => ({
+    params: { id: String(i + 1) },
+    props: { exhibit: {
+      id: String(i + 1),
+      title: `Lorem Ipsum ${["Alpha", "Beta", "Gamma", "Delta", "Epsilon"][i % 5]}`,
+      location: `Gallery ${["Lorem", "Ipsum", "Dolor"][i % 3]}, City`,
+      address: "Lorem Street 123, 00-000 City",
+      date: `${["Jan", "Mar", "May"][i % 3]} ${2020 + Math.floor(i / 4)}`,
+      endDate: `${["Feb", "Apr", "Jun"][i % 3]} ${2020 + Math.floor(i / 4)}`,
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+      curator: "Lorem Ipsum",
+      type: i % 3 === 0 ? "Solo" : "Group",
+      images: Array.from({ length: 8 }, (_, j) => `https://picsum.photos/seed/exhibgal${i}${j}/800/600`),
+    }}
+  }));
+}
+
+const { exhibit } = Astro.props;
+---
+
+<Layout title={`${exhibit.title} | Exhibitions | Artist Name`}>
+  <section class="min-h-screen pt-32 pb-24 px-8 md:px-16 lg:px-24">
+    <div class="max-w-6xl mx-auto">
+      <a href="/exhibitions" class="inline-flex items-center gap-2 text-text-muted hover:text-accent transition-colors mb-12">
+        <svg class="w-4 h-4 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+        <span class="text-sm tracking-wider uppercase">Back</span>
+      </a>
+
+      <div class="mb-16">
+        <div class="overflow-hidden"><p class="page-line text-accent text-sm tracking-[0.3em] uppercase mb-4 translate-y-full">{exhibit.type}</p></div>
+        <div class="overflow-hidden"><h1 class="page-line font-serif text-4xl md:text-6xl lg:text-7xl font-light translate-y-full">{exhibit.title}</h1></div>
+      </div>
+
+      <div class="relative overflow-hidden aspect-[16/9] mb-16">
+        <div class="exhibit-reveal absolute inset-0 bg-bg z-10"></div>
+        <img src={exhibit.images[0]} alt={exhibit.title} class="w-full h-full object-cover" />
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-16 mb-24">
+        <div class="lg:col-span-2">
+          <h2 class="font-serif text-2xl font-light mb-6">About the Exhibition</h2>
+          <p class="text-text-muted leading-relaxed mb-6">{exhibit.description}</p>
+          <p class="text-text-muted leading-relaxed">This exhibition explores themes of light, color, and human emotion through a collection of recent works created specifically for this space.</p>
+        </div>
+        <div class="space-y-8">
+          <div><p class="text-accent text-xs tracking-[0.2em] uppercase mb-2">Venue</p><p class="font-serif text-lg">{exhibit.location}</p><p class="text-text-muted text-sm mt-1">{exhibit.address}</p></div>
+          <div><p class="text-accent text-xs tracking-[0.2em] uppercase mb-2">Dates</p><p class="font-serif text-lg">{exhibit.date} — {exhibit.endDate}</p></div>
+          <div><p class="text-accent text-xs tracking-[0.2em] uppercase mb-2">Curator</p><p class="font-serif text-lg">{exhibit.curator}</p></div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="font-serif text-2xl font-light mb-8">Gallery</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {exhibit.images.map((image: string, i: number) => (
+            <div class="gallery-item relative overflow-hidden aspect-square opacity-0 translate-y-4">
+              <img src={image} alt={`${exhibit.title} ${i + 1}`} class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  gsap.registerPlugin(ScrollTrigger);
+
+  document.addEventListener("preloaderComplete", init);
+  if (!document.getElementById("preloader") || document.getElementById("preloader")?.style.display === "none") init();
+
+  function init() {
+    gsap.to(".page-line", { y: 0, duration: 1, stagger: 0.1, ease: "power3.out" });
+    gsap.to(".exhibit-reveal", { scaleY: 0, transformOrigin: "top", duration: 1.2, ease: "power3.inOut", delay: 0.3 });
+    gsap.utils.toArray<HTMLElement>(".gallery-item").forEach((item) => {
+      gsap.to(item, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", scrollTrigger: { trigger: item, start: "top 90%" } });
+    });
+  }
+</script>

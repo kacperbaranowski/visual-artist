@@ -1,0 +1,116 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Lightbox from "../../components/Lightbox.astro";
+
+export function getStaticPaths() {
+  const cycles = [
+    {
+      slug: "light-series",
+      title: "Light Series",
+      description: "Exploring the interplay of natural light and shadow across different times of day.",
+      works: Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        title: `Morning Light ${i + 1}`,
+        year: 2020 + Math.floor(i / 5),
+        dimensions: `${60 + i * 5}x${80 + i * 5} cm`,
+        technique: "Oil on canvas",
+        image: `https://picsum.photos/seed/light${i}/600/800`
+      }))
+    },
+    {
+      slug: "seasons",
+      title: "Seasons",
+      description: "A meditation on the cyclical nature of time through color and texture.",
+      works: Array.from({ length: 18 }, (_, i) => ({
+        id: i + 1,
+        title: `Season ${i + 1}`,
+        year: 2019 + Math.floor(i / 4),
+        dimensions: `${70 + i * 3}x${90 + i * 3} cm`,
+        technique: "Mixed media",
+        image: `https://picsum.photos/seed/season${i}/600/800`
+      }))
+    },
+    {
+      slug: "elements",
+      title: "Elements",
+      description: "Raw expressions of earth, water, fire, and air in abstract form.",
+      works: Array.from({ length: 22 }, (_, i) => ({
+        id: i + 1,
+        title: `Element ${i + 1}`,
+        year: 2018 + Math.floor(i / 5),
+        dimensions: `${80 + i * 4}x${100 + i * 4} cm`,
+        technique: "Acrylic on canvas",
+        image: `https://picsum.photos/seed/element${i}/600/800`
+      }))
+    },
+    {
+      slug: "abstract",
+      title: "Abstract",
+      description: "Pure emotion translated into form, color, and movement.",
+      works: Array.from({ length: 20 }, (_, i) => ({
+        id: i + 1,
+        title: `Untitled ${i + 1}`,
+        year: 2021 + Math.floor(i / 6),
+        dimensions: `${50 + i * 5}x${70 + i * 5} cm`,
+        technique: "Oil on linen",
+        image: `https://picsum.photos/seed/abstract${i}/600/800`
+      }))
+    },
+  ];
+  return cycles.map((cycle) => ({ params: { cykl: cycle.slug }, props: { cycle } }));
+}
+
+const { cycle } = Astro.props;
+---
+
+<Layout title={`${cycle.title} | Portfolio | Artist Name`}>
+  <section class="min-h-screen pt-32 pb-24 px-8 md:px-16 lg:px-24">
+    <div class="max-w-7xl mx-auto">
+      <a href="/portfolio" class="inline-flex items-center gap-2 text-text-muted hover:text-accent transition-colors mb-8">
+        <svg class="w-4 h-4 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+        <span class="text-sm tracking-wider uppercase">Back to Portfolio</span>
+      </a>
+
+      <div class="mb-16">
+        <div class="overflow-hidden"><p class="page-line text-accent text-sm tracking-[0.3em] uppercase mb-4 translate-y-full">Collection</p></div>
+        <div class="overflow-hidden"><h1 class="page-line font-serif text-5xl md:text-7xl lg:text-8xl font-light translate-y-full">{cycle.title}</h1></div>
+        <div class="overflow-hidden mt-6"><p class="page-line text-text-muted max-w-2xl translate-y-full">{cycle.description}</p></div>
+        <div class="overflow-hidden mt-4"><p class="page-line text-accent text-sm translate-y-full">{cycle.works.length} works</p></div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {cycle.works.map((work: any) => (
+          <article class="work-card group relative opacity-0 translate-y-8" data-cursor="View">
+            <div class="relative overflow-hidden aspect-[3/4] mb-4">
+              <img src={work.image} alt={work.title} class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" loading="lazy" />
+              <div class="absolute inset-0 bg-bg/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-full border border-text flex items-center justify-center">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m-3-3h6" /></svg>
+                </div>
+              </div>
+            </div>
+            <h3 class="font-serif text-lg font-light group-hover:text-accent transition-colors">{work.title}</h3>
+            <p class="text-text-muted text-xs mt-1">{work.year} &bull; {work.dimensions}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+  <Lightbox />
+</Layout>
+
+<script>
+  import gsap from "gsap";
+
+  function init() {
+    gsap.to(".page-line", { y: 0, duration: 1, stagger: 0.1, ease: "power3.out" });
+    gsap.utils.toArray(".work-card").forEach((card: any, i: number) => {
+      gsap.to(card, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.3 + (i % 8) * 0.05 });
+    });
+  }
+
+  document.addEventListener("preloaderComplete", init);
+  if (!document.getElementById("preloader") || document.getElementById("preloader")?.style.display === "none") {
+    init();
+  }
+</script>
