@@ -22,9 +22,10 @@
     </svg>
   </button>
 
-  <!-- Image container -->
+  <!-- Image container - dual images for smooth transitions -->
   <div class="absolute inset-0 flex items-center justify-center p-4 md:p-16">
-    <img id="lightbox-image" src="" alt="" class="max-w-full max-h-full object-contain opacity-0 scale-95 transition-all duration-300" />
+    <img id="lightbox-image-a" class="absolute max-w-full max-h-full object-contain transition-opacity duration-300" />
+    <img id="lightbox-image-b" class="absolute max-w-full max-h-full object-contain transition-opacity duration-300 opacity-0" />
   </div>
 
   <!-- Image info -->
@@ -37,7 +38,8 @@
 
 <script>
   const lightbox = document.getElementById('lightbox');
-  const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement;
+  const imgA = document.getElementById('lightbox-image-a') as HTMLImageElement;
+  const imgB = document.getElementById('lightbox-image-b') as HTMLImageElement;
   const lightboxTitle = document.getElementById('lightbox-title');
   const lightboxMeta = document.getElementById('lightbox-meta');
   const lightboxCounter = document.getElementById('lightbox-counter');
@@ -48,6 +50,8 @@
 
   let currentIndex = 0;
   let galleryImages: { src: string; title: string; meta: string }[] = [];
+  let activeImg: 'a' | 'b' = 'a';
+  let isFirstOpen = true;
 
   // Initialize gallery from work-card elements
   function initGallery() {
@@ -61,7 +65,7 @@
 
       if (img) {
         galleryImages.push({
-          src: img.src.replace('/600/800', '/1200/1600'), // Get larger image
+          src: img.src.replace('/600/800', '/1200/1600'),
           title,
           meta
         });
@@ -78,7 +82,12 @@
 
   function openLightbox(index: number) {
     currentIndex = index;
-    updateLightboxImage();
+    isFirstOpen = true;
+
+    // Reset both images
+    imgA?.classList.add('opacity-0');
+    imgB?.classList.add('opacity-0');
+    activeImg = 'a';
 
     lightbox?.classList.remove('opacity-0', 'pointer-events-none');
     document.body.style.overflow = 'hidden';
@@ -87,14 +96,12 @@
     const lenis = (window as any).lenis;
     if (lenis) lenis.stop();
 
-    setTimeout(() => {
-      lightboxImage?.classList.remove('opacity-0', 'scale-95');
-      lightboxInfo?.classList.remove('opacity-0');
-    }, 100);
+    updateLightboxImage();
   }
 
   function closeLightbox() {
-    lightboxImage?.classList.add('opacity-0', 'scale-95');
+    const showImg = activeImg === 'a' ? imgA : imgB;
+    showImg?.classList.add('opacity-0');
     lightboxInfo?.classList.add('opacity-0');
 
     setTimeout(() => {
@@ -112,18 +119,36 @@
 
     const { src, title, meta } = galleryImages[currentIndex];
 
-    // Fade out
-    lightboxImage?.classList.add('opacity-0', 'scale-95');
+    // Update info immediately
+    if (lightboxTitle) lightboxTitle.textContent = title;
+    if (lightboxMeta) lightboxMeta.textContent = meta;
+    if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${galleryImages.length}`;
 
-    setTimeout(() => {
-      if (lightboxImage) lightboxImage.src = src;
-      if (lightboxTitle) lightboxTitle.textContent = title;
-      if (lightboxMeta) lightboxMeta.textContent = meta;
-      if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${galleryImages.length}`;
+    // Select images for swap
+    const loadImg = activeImg === 'a' ? imgB : imgA;
+    const showImg = activeImg === 'a' ? imgA : imgB;
 
-      // Fade in
-      lightboxImage?.classList.remove('opacity-0', 'scale-95');
-    }, 150);
+    // Load new image in background
+    loadImg.onload = () => {
+      // Fade out current image
+      showImg?.classList.add('opacity-0');
+      // Fade in new image
+      loadImg?.classList.remove('opacity-0');
+      // Swap active
+      activeImg = activeImg === 'a' ? 'b' : 'a';
+
+      // Show info on first open
+      if (isFirstOpen) {
+        lightboxInfo?.classList.remove('opacity-0');
+        isFirstOpen = false;
+      }
+    };
+    loadImg.src = src;
+
+    // Handle first open - show immediately if image cached
+    if (isFirstOpen && loadImg.complete) {
+      loadImg.onload?.(new Event('load') as any);
+    }
   }
 
   function nextImage() {
