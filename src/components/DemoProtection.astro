@@ -63,26 +63,30 @@
     }
   });
 
-  // Detect DevTools opening
-  let devtoolsOpen = false;
-  const threshold = 160;
+  // Detect DevTools opening (only on desktop - touch devices have false positives)
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-  const checkDevTools = function() {
-    const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-    const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+  if (!isTouchDevice) {
+    let devtoolsOpen = false;
+    const threshold = 160;
 
-    if (widthThreshold || heightThreshold) {
-      if (!devtoolsOpen) {
-        devtoolsOpen = true;
-        const warning = document.getElementById('devtools-warning');
-        if (warning) {
-          warning.style.display = 'block';
+    const checkDevTools = function() {
+      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+
+      if (widthThreshold || heightThreshold) {
+        if (!devtoolsOpen) {
+          devtoolsOpen = true;
+          const warning = document.getElementById('devtools-warning');
+          if (warning) {
+            warning.style.display = 'block';
+          }
         }
       }
-    }
-  };
+    };
 
-  setInterval(checkDevTools, 1000);
+    setInterval(checkDevTools, 1000);
+  }
 
   // Disable text selection via JS (backup for CSS)
   document.addEventListener('selectstart', function(e) {

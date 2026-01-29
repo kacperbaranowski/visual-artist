@@ -37,7 +37,7 @@ const works = [
   </div>
 
   <div id="horizontal-trigger" class="relative">
-    <div id="horizontal-scroll" class="flex gap-8 pl-8 md:pl-16 lg:pl-24 pr-[20vw]">
+    <div id="horizontal-scroll" class="flex gap-8 pl-8 md:pl-16 lg:pl-24 pr-[20vw] overflow-x-auto md:overflow-visible scrollbar-hide">
       {works.map((work) => (
         <article class="work-item flex-shrink-0 w-[70vw] md:w-[45vw] lg:w-[35vw] group" data-cursor="View">
           <a href={`/portfolio/${work.slug}`} class="block">
@@ -93,8 +93,9 @@ const works = [
   const horizontalScroll = document.getElementById("horizontal-scroll");
   const horizontalTrigger = document.getElementById("horizontal-trigger");
   const scrollProgress = document.getElementById("scroll-progress");
+  const isMobile = window.innerWidth < 768;
 
-  if (horizontalScroll && horizontalTrigger) {
+  if (horizontalScroll && horizontalTrigger && !isMobile) {
     const scrollWidth = horizontalScroll.scrollWidth - window.innerWidth + 100;
     gsap.to(horizontalScroll, {
       x: -scrollWidth,
@@ -110,6 +111,14 @@ const works = [
           if (scrollProgress) gsap.set(scrollProgress, { width: `${self.progress * 100}%` });
         },
       },
+    });
+  }
+
+  // Mobile: update progress on manual scroll
+  if (horizontalScroll && scrollProgress && isMobile) {
+    horizontalScroll.addEventListener("scroll", () => {
+      const progress = horizontalScroll.scrollLeft / (horizontalScroll.scrollWidth - horizontalScroll.clientWidth);
+      gsap.set(scrollProgress, { width: `${progress * 100}%` });
     });
   }
 

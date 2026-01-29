@@ -4,7 +4,7 @@
 
 <section id="hero" class="relative min-h-screen w-full overflow-hidden flex items-center">
   <!-- Animated Canvas Background -->
-  <canvas id="hero-canvas" class="absolute inset-0 w-full h-full"></canvas>
+  <canvas id="hero-canvas" class="absolute inset-0 w-full h-full blur-[80px]"></canvas>
 
   <!-- Gradient overlays -->
   <div class="absolute inset-0 bg-gradient-to-b from-bg/50 via-transparent to-bg pointer-events-none"></div>
@@ -80,7 +80,7 @@
   </div>
 
   <!-- Scroll indicator -->
-  <div class="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
+  <div class="scroll-indicator absolute bottom-12 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-3">
     <span class="text-text-muted text-xs tracking-[0.3em] uppercase">Scroll</span>
     <div class="w-px h-12 bg-text-muted/30 relative overflow-hidden">
       <div class="scroll-line absolute top-0 left-0 w-full h-1/2 bg-accent"></div>
@@ -184,12 +184,10 @@
   function animate() {
     ctx.fillStyle = "#0a0a0a";
     ctx.fillRect(0, 0, width, height);
-    ctx.filter = "blur(80px)";
     particles.forEach((p) => {
       p.update();
       p.draw();
     });
-    ctx.filter = "none";
     requestAnimationFrame(animate);
   }
 

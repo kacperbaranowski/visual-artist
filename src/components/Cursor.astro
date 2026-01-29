@@ -11,10 +11,21 @@
 <script>
   import gsap from "gsap";
 
+  // Hide custom cursor on touch devices
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
   const cursor = document.getElementById("cursor");
   const cursorDot = document.getElementById("cursor-dot");
   const cursorCircle = document.getElementById("cursor-circle");
   const cursorText = document.getElementById("cursor-text");
+
+  if (isTouchDevice) {
+    // Hide custom cursor, show default cursor
+    if (cursor) cursor.style.display = 'none';
+  } else {
+    // Desktop - hide default cursor
+    document.documentElement.classList.add('has-custom-cursor');
+  }
 
   let mouseX = 0;
   let mouseY = 0;
